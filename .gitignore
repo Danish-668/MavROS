@@ -1,3 +1,29 @@
-/build/
-/install/
-/log/
+# Build artifacts
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ROS2 specific
+.colcon_local_setup.sh
+.colcon_local_setup.bash
+.colcon_local_setup.zsh
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Log files
+*.log
+/tmp/
