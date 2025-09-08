@@ -8,13 +8,24 @@ This workspace provides a minimal MAVROS implementation with integrated custom M
 ### Prerequisites
 - ROS2 Humble
 - MAVROS dependencies
-- Python 3 with pymavlink
+- Python 3 with pymavlink and PyYAML
 
 ### Building
 ```bash
 cd ~/ros2_mav_ws
 colcon build --packages-select mavros
 source install/setup.bash
+```
+
+### Configuration
+
+Edit `config.yaml` to set your robot name and network settings:
+```yaml
+robot_name: "rover1"  
+mavlink:
+  input_port: 14550   # Port to receive MAVLink messages
+  output_port: 14555  # Port to forward to MAVROS
+  host: "127.0.0.1"
 ```
 
 ### Running the System
@@ -27,34 +38,32 @@ python3 custom_router.py
 
 2. **Start MAVROS** (Terminal 2):
 ```bash
-source ~/ros2_mav_ws/install/setup.bash
-ros2 run mavros mavros_node --ros-args \
-    -r __ns:=/uas1 \
-    -p fcu_url:="udp://@:14555" \
-    -p fcu_protocol:="v2.0"
+cd ~/ros2_mav_ws
+source install/setup.bash
+python3 launch_mavros.py
 ```
 
 3. **Send MAVLink Messages**:
-   - Send your messages to UDP port 14550
-   - Router forwards them to MAVROS on port 14555
+   - Send your messages to UDP port 14550 (or configured input_port)
+   - Router forwards them to MAVROS on port 14555 (or configured output_port)
 
 ## Available ROS2 Topics
 
-### Custom Message Topics
-- `/uas1/tof_ranges/raw` - 8x8 TOF distance array (meters)
-- `/uas1/tof_ranges/cloud` - PointCloud2 visualization
-- `/uas1/tof_meta/status` - Zone status values
-- `/uas1/tof_meta/confidence` - Zone confidence values
-- `/uas1/wheel_encoders/counts` - Encoder tick counts
-- `/uas1/wheel_encoders/velocities` - Wheel velocities (rad/s)
-- `/uas1/wheel_encoders/twist` - Robot twist
+### Custom Message Topics (replace `{robot_name}` with your configured robot name)
+- `/{robot_name}/tof_ranges/raw` - 8x8 TOF distance array (meters)
+- `/{robot_name}/tof_ranges/cloud` - PointCloud2 visualization
+- `/{robot_name}/tof_meta/status` - Zone status values
+- `/{robot_name}/tof_meta/confidence` - Zone confidence values
+- `/{robot_name}/wheel_encoders/counts` - Encoder tick counts
+- `/{robot_name}/wheel_encoders/velocities` - Wheel velocities (rad/s)
+- `/{robot_name}/wheel_encoders/twist` - Robot twist
 
 ### Standard MAVROS Topics
-- `/uas1/imu/data` - IMU with orientation
-- `/uas1/imu/data_raw` - Raw IMU data
-- `/uas1/battery` - Battery status
-- `/uas1/rc/in` - RC input channels
-- `/uas1/state` - System state
+- `/{robot_name}/imu/data` - IMU with orientation
+- `/{robot_name}/imu/data_raw` - Raw IMU data
+- `/{robot_name}/battery` - Battery status
+- `/{robot_name}/rc/in` - RC input channels
+- `/{robot_name}/state` - System state
 
 ## Architecture
 

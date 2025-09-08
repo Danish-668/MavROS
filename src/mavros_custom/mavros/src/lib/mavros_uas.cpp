@@ -351,12 +351,10 @@ void UAS::connect_to_router()
 
   this->sink =
     this->create_publisher<mavros_msgs::msg::Mavlink>(
-    utils::format(
-      "%s/%s", this->uas_url.c_str(),
-      "mavlink_sink"), qos);
+      "/uas1/mavlink_sink", qos);
 
   this->source = this->create_subscription<mavros_msgs::msg::Mavlink>(
-    utils::format("%s/%s", this->uas_url.c_str(), "mavlink_source"), qos,
+    "/uas1/mavlink_source", qos,
     std::bind(&UAS::recv_message, this, std::placeholders::_1));
 }
 
