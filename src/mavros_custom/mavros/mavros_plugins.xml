@@ -137,5 +137,23 @@ Required by all plugins.</description>
     <description>@brief Wind estimation plugin.
 @plugin wind_estimation</description>
   </class>
+  <class name="tof_ranges" type="mavros::plugin::PluginFactoryTemplate&lt;mavros::extra_plugins::TofRangesPlugin&gt;" base_class_type="mavros::plugin::PluginFactory">
+    <description>@brief TOF L7CX Ranges plugin
+@plugin tof_ranges
+
+Handles TOF_L7CX_RANGES custom messages (ID: 42001) from VL53L7CX sensor.</description>
+  </class>
+  <class name="tof_meta" type="mavros::plugin::PluginFactoryTemplate&lt;mavros::extra_plugins::TofMetaPlugin&gt;" base_class_type="mavros::plugin::PluginFactory">
+    <description>@brief TOF L7CX Meta plugin
+@plugin tof_meta
+
+Handles TOF_L7CX_META custom messages (ID: 42002) containing zone status and confidence.</description>
+  </class>
+  <class name="wheel_encoders" type="mavros::plugin::PluginFactoryTemplate&lt;mavros::extra_plugins::WheelEncodersPlugin&gt;" base_class_type="mavros::plugin::PluginFactory">
+    <description>@brief Wheel Encoders plugin
+@plugin wheel_encoders
+
+Handles WHEEL_ENCODERS custom messages (ID: 42003) for differential drive robots.</description>
+  </class>
 </library>
 <!-- [[[end]]] (checksum: e47485a8565112ddf4058c7a77bcc519) -->
