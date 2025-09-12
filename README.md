@@ -19,6 +19,7 @@ A streamlined ROS2 MAVROS implementation with built-in custom MAVLink message ha
 ### Building
 ```bash
 cd ~/ros2_mav_ws
+rosdep install --from-paths src -y --ignore-src
 colcon build --packages-select mavros
 source install/setup.bash
 ```
