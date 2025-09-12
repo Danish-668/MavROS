@@ -56,7 +56,15 @@ int main(int argc, char * argv[])
   node->get_parameter("map_frame", map_frame_id);
   node->get_parameter("odom_frame", odom_frame_id);
 
-  uas_url = mavros::utils::format("/uas%d", tgt_system);
+  // Use the node's namespace for UAS URL
+  std::string ns = node->get_namespace();
+  if (ns == "/") {
+    // If running in root namespace, use default
+    uas_url = mavros::utils::format("/uas%d", tgt_system);
+  } else {
+    // Use the actual namespace
+    uas_url = ns;
+  }
 
   RCLCPP_INFO(node->get_logger(), "Starting mavros_node container");
   RCLCPP_INFO(node->get_logger(), "FCU URL: %s", fcu_url.c_str());

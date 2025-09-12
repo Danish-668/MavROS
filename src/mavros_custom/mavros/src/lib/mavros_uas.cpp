@@ -349,12 +349,17 @@ void UAS::connect_to_router()
   auto qos = rclcpp::QoS(
     1000).best_effort().durability_volatile();
 
+  // Get the node's namespace to construct absolute paths
+  std::string ns = this->get_namespace();
+  std::string sink_topic = ns + "/mavlink_sink";
+  std::string source_topic = ns + "/mavlink_source";
+  
   this->sink =
     this->create_publisher<mavros_msgs::msg::Mavlink>(
-      "/uas1/mavlink_sink", qos);
+      sink_topic, qos);
 
   this->source = this->create_subscription<mavros_msgs::msg::Mavlink>(
-    "/uas1/mavlink_source", qos,
+    source_topic, qos,
     std::bind(&UAS::recv_message, this, std::placeholders::_1));
 }
 

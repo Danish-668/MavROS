@@ -6,7 +6,7 @@ robot_name: "tota1"  # Change this to your robot's name (will be used as ROS2 na
 
 # Network configuration
 mavlink:
-  input_port: 14550   # Port to receive MAVLink messages
+  input_port: 14551   # Port to receive MAVLink messages
   output_port: 14555  # Port to forward messages to MAVROS
   host: "127.0.0.1"   # Host IP address
 
