@@ -155,5 +155,11 @@ Handles TOF_L7CX_META custom messages (ID: 42002) containing zone status and con
 
 Handles WHEEL_ENCODERS custom messages (ID: 42003) for differential drive robots.</description>
   </class>
+  <class name="velocity_control" type="mavros::plugin::PluginFactoryTemplate&lt;mavros::std_plugins::VelocityControlPlugin&gt;" base_class_type="mavros::plugin::PluginFactory">
+    <description>@brief Velocity Control plugin
+@plugin velocity_control
+
+Subscribes to cmd_vel and sends velocity commands via MAVLink.</description>
+  </class>
 </library>
 <!-- [[[end]]] (checksum: e47485a8565112ddf4058c7a77bcc519) -->

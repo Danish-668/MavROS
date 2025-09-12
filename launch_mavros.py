@@ -16,7 +16,9 @@ def load_config(config_path="config.yaml"):
 def launch_mavros(config):
     """Launch MAVROS with configuration"""
     robot_name = config.get('robot_name', 'tota1')
-    output_port = config.get('mavlink', {}).get('output_port', 14555)
+    mavlink_config = config.get('mavlink', {})
+    input_port = mavlink_config.get('input_port', 14550)
+    output_port = mavlink_config.get('output_port', 14555)
     fcu_protocol = config.get('mavros', {}).get('fcu_protocol', 'v2.0')
     
     # Build the command - use local custom MAVROS binary
@@ -24,12 +26,12 @@ def launch_mavros(config):
         './install/mavros/lib/mavros/mavros_node',
         '--ros-args',
         '-r', f'__ns:=/{robot_name}',
-        '-p', f'fcu_url:=udp://@:{output_port}',
+        '-p', f'fcu_url:=udp://127.0.0.1:{input_port}@:{output_port}',
         '-p', f'fcu_protocol:={fcu_protocol}'
     ]
     
     print(f"Launching MAVROS with namespace: /{robot_name}")
-    print(f"FCU URL: udp://@:{output_port}")
+    print(f"FCU URL: udp://127.0.0.1:{input_port}@:{output_port}")
     print(f"Protocol: {fcu_protocol}")
     print("-" * 50)
     

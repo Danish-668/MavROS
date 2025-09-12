@@ -166,6 +166,7 @@ add_library(mavros_plugins SHARED
   src/plugins/tof_ranges.cpp      # TOF_L7CX_RANGES handler
   src/plugins/tof_meta.cpp        # TOF_L7CX_META handler
   src/plugins/wheel_encoders.cpp  # WHEEL_ENCODERS handler
+  src/plugins/velocity_control.cpp # Velocity control via cmd_vel
 )
 add_dependencies(mavros_plugins
   mavros
