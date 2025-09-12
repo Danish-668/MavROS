@@ -27,7 +27,9 @@ def launch_mavros(config):
         '--ros-args',
         '-r', f'__ns:=/{robot_name}',
         '-p', f'fcu_url:=udp://127.0.0.1:{input_port}@:{output_port}',
-        '-p', f'fcu_protocol:={fcu_protocol}'
+        '-p', f'fcu_protocol:={fcu_protocol}',
+        '-p', 'tgt_system:=20',
+        '-p', 'tgt_component:=200'
     ]
     
     print(f"Launching MAVROS with namespace: /{robot_name}")

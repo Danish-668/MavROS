@@ -135,10 +135,10 @@ target_link_libraries(mavros ${GeographicLib_LIBRARIES})
 rclcpp_components_register_nodes(mavros "mavros::router::Router" "mavros::uas::UAS")
 
 add_library(mavros_plugins SHARED
-  src/plugins/sys_status.cpp      # Required for heartbeat and connection
-  src/plugins/sys_time.cpp        # Time synchronization
-  src/plugins/rc_io.cpp           # RC input/output data
-  src/plugins/param.cpp           # Parameter handling (may be needed)
+  src/plugins/sys_status.cpp      # REQUIRED: Heartbeat and connection
+  src/plugins/sys_time.cpp        # REQUIRED: Time synchronization
+  # src/plugins/rc_io.cpp         # Removed: RC not needed for autonomous
+  # src/plugins/param.cpp         # Removed: Not changing autopilot params
   # src/plugins/actuator_control.cpp
   # src/plugins/altitude.cpp
   # src/plugins/command.cpp
@@ -147,7 +147,7 @@ add_library(mavros_plugins SHARED
   # src/plugins/geofence.cpp
   # src/plugins/global_position.cpp
   # src/plugins/home_position.cpp
-  src/plugins/imu.cpp               # IMU/attitude data
+  # src/plugins/imu.cpp           # Removed: Not receiving valid IMU data
   # src/plugins/local_position.cpp
   # src/plugins/manual_control.cpp
   # src/plugins/mission_protocol_base.cpp
