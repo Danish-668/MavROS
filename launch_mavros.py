@@ -29,7 +29,8 @@ def launch_mavros(config):
         '-p', f'fcu_url:=udp://127.0.0.1:{input_port}@:{output_port}',
         '-p', f'fcu_protocol:={fcu_protocol}',
         '-p', 'tgt_system:=20',
-        '-p', 'tgt_component:=200'
+        '-p', 'tgt_component:=200',
+        '-p', 'plugin_allowlist:=[command,sys_status,sys_time,tof_ranges,tof_meta,wheel_encoders,velocity_control]'
     ]
     
     print(f"Launching MAVROS with namespace: /{robot_name}")
@@ -37,12 +38,11 @@ def launch_mavros(config):
     print(f"Protocol: {fcu_protocol}")
     print("-" * 50)
     
-    # Launch MAVROS with sourced environment
+    # Launch MAVROS
     try:
-        env = os.environ.copy()
-        # Source the local workspace setup
-        source_cmd = f'source install/setup.bash && {" ".join(cmd)}'
-        subprocess.run(['bash', '-c', source_cmd], env=env)
+        # Source the workspace setup and run
+        source_cmd = f"source ./install/setup.bash && {' '.join(cmd)}"
+        subprocess.run(source_cmd, shell=True, executable='/bin/bash')
     except KeyboardInterrupt:
         print("\nShutting down MAVROS...")
 
