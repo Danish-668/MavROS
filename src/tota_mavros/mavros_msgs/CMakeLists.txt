@@ -31,85 +31,85 @@ set(msg_files
   # [[[cog:
   # mavros_cog.outl_glob_files('msg', '*.msg')
   # ]]]
-  msg/ADSBVehicle.msg
-  msg/ActuatorControl.msg
-  msg/Altitude.msg
-  msg/AttitudeTarget.msg
-  msg/CamIMUStamp.msg
-  msg/CameraImageCaptured.msg
-  msg/CellularStatus.msg
-  msg/CommandCode.msg
-  msg/CompanionProcessStatus.msg
-  msg/DebugValue.msg
-  msg/ESCInfo.msg
-  msg/ESCInfoItem.msg
-  msg/ESCStatus.msg
-  msg/ESCStatusItem.msg
-  msg/ESCTelemetry.msg
-  msg/ESCTelemetryItem.msg
+  # msg/ADSBVehicle.msg
+  # msg/ActuatorControl.msg
+  # msg/Altitude.msg
+  # msg/AttitudeTarget.msg
+  # msg/CamIMUStamp.msg
+  # msg/CameraImageCaptured.msg
+  # msg/CellularStatus.msg
+  # msg/CommandCode.msg
+  # msg/CompanionProcessStatus.msg
+  # msg/DebugValue.msg
+  # msg/ESCInfo.msg
+  # msg/ESCInfoItem.msg
+  # msg/ESCStatus.msg
+  # msg/ESCStatusItem.msg
+  # msg/ESCTelemetry.msg
+  # msg/ESCTelemetryItem.msg
   msg/EstimatorStatus.msg
   msg/ExtendedState.msg
-  msg/FileEntry.msg
-  msg/GPSINPUT.msg
-  msg/GPSRAW.msg
-  msg/GPSRTK.msg
-  msg/GimbalDeviceAttitudeStatus.msg
-  msg/GimbalDeviceInformation.msg
-  msg/GimbalDeviceSetAttitude.msg
-  msg/GimbalManagerInformation.msg
-  msg/GimbalManagerSetAttitude.msg
-  msg/GimbalManagerSetPitchyaw.msg
-  msg/GimbalManagerStatus.msg
-  msg/GlobalPositionTarget.msg
-  msg/HilActuatorControls.msg
-  msg/HilControls.msg
-  msg/HilGPS.msg
-  msg/HilSensor.msg
-  msg/HilStateQuaternion.msg
-  msg/HomePosition.msg
-  msg/LandingTarget.msg
-  msg/LogData.msg
-  msg/LogEntry.msg
-  msg/MagnetometerReporter.msg
-  msg/ManualControl.msg
+  # msg/FileEntry.msg
+  # msg/GPSINPUT.msg
+  # msg/GPSRAW.msg
+  # msg/GPSRTK.msg
+  # msg/GimbalDeviceAttitudeStatus.msg
+  # msg/GimbalDeviceInformation.msg
+  # msg/GimbalDeviceSetAttitude.msg
+  # msg/GimbalManagerInformation.msg
+  # msg/GimbalManagerSetAttitude.msg
+  # msg/GimbalManagerSetPitchyaw.msg
+  # msg/GimbalManagerStatus.msg
+  # msg/GlobalPositionTarget.msg
+  # msg/HilActuatorControls.msg
+  # msg/HilControls.msg
+  # msg/HilGPS.msg
+  # msg/HilSensor.msg
+  # msg/HilStateQuaternion.msg
+  # msg/HomePosition.msg
+  # msg/LandingTarget.msg
+  # msg/LogData.msg
+  # msg/LogEntry.msg
+  # msg/MagnetometerReporter.msg
+  # msg/ManualControl.msg
   msg/Mavlink.msg
-  msg/MountControl.msg
-  msg/NavControllerOutput.msg
-  msg/OnboardComputerStatus.msg
-  msg/OpenDroneIDBasicID.msg
-  msg/OpenDroneIDOperatorID.msg
-  msg/OpenDroneIDSelfID.msg
-  msg/OpenDroneIDSystem.msg
-  msg/OpenDroneIDSystemUpdate.msg
-  msg/OpticalFlow.msg
-  msg/OpticalFlowRad.msg
-  msg/OverrideRCIn.msg
-  msg/Param.msg
-  msg/ParamEvent.msg
-  msg/ParamValue.msg
-  msg/PlayTuneV2.msg
-  msg/PositionTarget.msg
-  msg/RCIn.msg
-  msg/RCOut.msg
-  msg/RTCM.msg
-  msg/RTKBaseline.msg
+  # msg/MountControl.msg
+  # msg/NavControllerOutput.msg
+  # msg/OnboardComputerStatus.msg
+  # msg/OpenDroneIDBasicID.msg
+  # msg/OpenDroneIDOperatorID.msg
+  # msg/OpenDroneIDSelfID.msg
+  # msg/OpenDroneIDSystem.msg
+  # msg/OpenDroneIDSystemUpdate.msg
+  # msg/OpticalFlow.msg
+  # msg/OpticalFlowRad.msg
+  # msg/OverrideRCIn.msg
+  # msg/Param.msg
+  # msg/ParamEvent.msg
+  # msg/ParamValue.msg
+  # msg/PlayTuneV2.msg
+  # msg/PositionTarget.msg
+  # msg/RCIn.msg
+  # msg/RCOut.msg
+  # msg/RTCM.msg
+  # msg/RTKBaseline.msg
   msg/RadioStatus.msg
   msg/State.msg
   msg/StatusEvent.msg
   msg/StatusText.msg
   msg/SysStatus.msg
-  msg/TerrainReport.msg
-  msg/Thrust.msg
+  # msg/TerrainReport.msg
+  # msg/Thrust.msg
   msg/TimesyncStatus.msg
-  msg/Trajectory.msg
-  msg/Tunnel.msg
+  # msg/Trajectory.msg
+  # msg/Tunnel.msg
   msg/VehicleInfo.msg
-  msg/VfrHud.msg
-  msg/Vibration.msg
-  msg/Waypoint.msg
-  msg/WaypointList.msg
-  msg/WaypointReached.msg
-  msg/WheelOdomStamped.msg
+  # msg/VfrHud.msg
+  # msg/Vibration.msg
+  # msg/Waypoint.msg
+  # msg/WaypointList.msg
+  # msg/WaypointReached.msg
+  # msg/WheelOdomStamped.msg
   # [[[end]]] (checksum: 6c52941c1b5d0aec5f3315d3e498c857)
 )
 
@@ -117,52 +117,52 @@ set(srv_files
   # [[[cog:
   # mavros_cog.outl_glob_files('srv', '*.srv')
   # ]]]
-  srv/CommandAck.srv
-  srv/CommandBool.srv
-  srv/CommandHome.srv
-  srv/CommandInt.srv
+  # srv/CommandAck.srv
+  # srv/CommandBool.srv
+  # srv/CommandHome.srv
+  # srv/CommandInt.srv
   srv/CommandLong.srv
-  srv/CommandTOL.srv
-  srv/CommandTOLLocal.srv
-  srv/CommandTriggerControl.srv
-  srv/CommandTriggerInterval.srv
-  srv/CommandVtolTransition.srv
+  # srv/CommandTOL.srv
+  # srv/CommandTOLLocal.srv
+  # srv/CommandTriggerControl.srv
+  # srv/CommandTriggerInterval.srv
+  # srv/CommandVtolTransition.srv
   srv/EndpointAdd.srv
   srv/EndpointDel.srv
-  srv/FileChecksum.srv
-  srv/FileClose.srv
-  srv/FileList.srv
-  srv/FileMakeDir.srv
-  srv/FileOpen.srv
-  srv/FileRead.srv
-  srv/FileRemove.srv
-  srv/FileRemoveDir.srv
-  srv/FileRename.srv
-  srv/FileTruncate.srv
-  srv/FileWrite.srv
-  srv/GimbalGetInformation.srv
-  srv/GimbalManagerCameraTrack.srv
-  srv/GimbalManagerConfigure.srv
-  srv/GimbalManagerPitchyaw.srv
-  srv/GimbalManagerSetRoi.srv
-  srv/LogRequestData.srv
-  srv/LogRequestEnd.srv
-  srv/LogRequestList.srv
+  # srv/FileChecksum.srv
+  # srv/FileClose.srv
+  # srv/FileList.srv
+  # srv/FileMakeDir.srv
+  # srv/FileOpen.srv
+  # srv/FileRead.srv
+  # srv/FileRemove.srv
+  # srv/FileRemoveDir.srv
+  # srv/FileRename.srv
+  # srv/FileTruncate.srv
+  # srv/FileWrite.srv
+  # srv/GimbalGetInformation.srv
+  # srv/GimbalManagerCameraTrack.srv
+  # srv/GimbalManagerConfigure.srv
+  # srv/GimbalManagerPitchyaw.srv
+  # srv/GimbalManagerSetRoi.srv
+  # srv/LogRequestData.srv
+  # srv/LogRequestEnd.srv
+  # srv/LogRequestList.srv
   srv/MessageInterval.srv
-  srv/MountConfigure.srv
-  srv/ParamGet.srv
-  srv/ParamPull.srv
-  srv/ParamPush.srv
-  srv/ParamSet.srv
-  srv/ParamSetV2.srv
-  srv/SetMavFrame.srv
+  # srv/MountConfigure.srv
+  # srv/ParamGet.srv
+  # srv/ParamPull.srv
+  # srv/ParamPush.srv
+  # srv/ParamSet.srv
+  # srv/ParamSetV2.srv
+  # srv/SetMavFrame.srv
   srv/SetMode.srv
   srv/StreamRate.srv
   srv/VehicleInfoGet.srv
-  srv/WaypointClear.srv
-  srv/WaypointPull.srv
-  srv/WaypointPush.srv
-  srv/WaypointSetCurrent.srv
+  # srv/WaypointClear.srv
+  # srv/WaypointPull.srv
+  # srv/WaypointPush.srv
+  # srv/WaypointSetCurrent.srv
   # [[[end]]] (checksum: cd7701b28a3176d96ef65cb1f2157917)
 )
 
