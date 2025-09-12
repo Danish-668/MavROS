@@ -1,0 +1,32 @@
+# MAVROS Plugin Configuration
+# This file controls which MAVROS plugins are loaded at startup
+# Comment out or set to empty list to load all available plugins
+
+plugin_allowlist:
+  # Core system plugins
+  # - command          # Required for sys_status version requests
+  # - sys_status       # System status monitoring
+  # - sys_time         # Time synchronization
+  
+  # Custom sensor plugins
+  - tof_ranges       # TOF L7CX range sensor data (ID: 42001)
+  # - tof_meta         # TOF L7CX metadata (ID: 42002)
+  - wheel_encoders   # Wheel encoder data (ID: 42003)
+  
+  # Control plugins
+  - velocity_control # Velocity command interface
+
+# Uncomment below to load ALL plugins (ignores allowlist)
+# load_all_plugins: true
+
+# Additional plugins you might want to enable:
+# - imu              # IMU data
+# - global_position  # GPS position
+# - local_position   # Local position
+# - altitude         # Altitude data
+# - battery          # Battery status
+# - rc_io            # RC input/output
+# - waypoint         # Mission waypoints
+# - param            # Parameter management
+# - ftp              # File transfer
+# - command          # Command interface

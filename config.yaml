@@ -13,6 +13,7 @@ mavlink:
 # MAVROS configuration
 mavros:
   fcu_protocol: "v2.0"  # MAVLink protocol version
+  plugin_config: "mavros_plugins.yaml"  # Path to plugin configuration file
   
 # Custom message configuration
 custom_messages:

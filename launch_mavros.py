@@ -19,7 +19,8 @@ def launch_mavros(config):
     mavlink_config = config.get('mavlink', {})
     input_port = mavlink_config.get('input_port', 14550)
     output_port = mavlink_config.get('output_port', 14555)
-    fcu_protocol = config.get('mavros', {}).get('fcu_protocol', 'v2.0')
+    mavros_config = config.get('mavros', {})
+    fcu_protocol = mavros_config.get('fcu_protocol', 'v2.0')
     
     # Build the command - use local custom MAVROS binary
     cmd = [
@@ -29,9 +30,35 @@ def launch_mavros(config):
         '-p', f'fcu_url:=udp://127.0.0.1:{input_port}@:{output_port}',
         '-p', f'fcu_protocol:={fcu_protocol}',
         '-p', 'tgt_system:=20',
-        '-p', 'tgt_component:=200',
-        '-p', 'plugin_allowlist:=[command,sys_status,sys_time,tof_ranges,tof_meta,wheel_encoders,velocity_control]'
+        '-p', 'tgt_component:=200'
     ]
+    
+    # Load plugin configuration from separate file if specified
+    plugin_config_file = mavros_config.get('plugin_config', None)
+    plugin_allowlist = []
+    
+    if plugin_config_file:
+        try:
+            with open(plugin_config_file, 'r') as f:
+                plugin_config = yaml.safe_load(f)
+                # Check if we should load all plugins
+                if plugin_config.get('load_all_plugins', False):
+                    print("Loading all available plugins (load_all_plugins: true)")
+                else:
+                    plugin_allowlist = plugin_config.get('plugin_allowlist', [])
+        except FileNotFoundError:
+            print(f"Warning: Plugin config file '{plugin_config_file}' not found, loading all plugins")
+    else:
+        # Fallback to inline config if no separate file specified
+        plugin_allowlist = mavros_config.get('plugin_allowlist', [])
+    
+    # Add plugin allowlist if specified
+    if plugin_allowlist:
+        plugins_str = ','.join(plugin_allowlist)
+        cmd.extend(['-p', f'plugin_allowlist:=[{plugins_str}]'])
+        print(f"Loading plugins from {plugin_config_file or 'config'}: {', '.join(plugin_allowlist)}")
+    elif not plugin_config_file:
+        print("Loading all available plugins (no allowlist specified)")
     
     print(f"Launching MAVROS with namespace: /{robot_name}")
     print(f"FCU URL: udp://127.0.0.1:{input_port}@:{output_port}")
