@@ -1,0 +1,14 @@
+/**:
+  ros__parameters:
+
+    fcu_url: udp://127.0.0.1:14551@:14555
+    # gcs_url: udp://127.0.0.1:14555@:14551
+
+    tgt_system: 20
+    tgt_component: 200
+    fcu_protocol: v2.0
+    
+    plugin_allowlist:
+      - tof_ranges
+      - tof_meta
+      - wheel_encoders
