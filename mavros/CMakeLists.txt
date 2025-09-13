@@ -162,6 +162,9 @@ add_library(mavros_plugins SHARED
   # src/plugins/waypoint.cpp
   # src/plugins/wind_estimation.cpp
   
+  # IMU plugin for attitude data
+  src/plugins/imu.cpp             # IMU data (ATTITUDE, ATTITUDE_QUATERNION, etc.)
+  
   # Custom plugins for TOTA dialect
   src/plugins/tof_ranges.cpp      # TOF_L7CX_RANGES handler
   src/plugins/tof_meta.cpp        # TOF_L7CX_META handler

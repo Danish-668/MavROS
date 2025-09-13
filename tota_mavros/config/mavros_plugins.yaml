@@ -3,10 +3,11 @@
 # Comment out or set to empty list to load all available plugins
 
 plugin_allowlist:
-  # Core system plugins
-  # - command          # Required for sys_status version requests
+  # Core system plugins  
   # - sys_status       # System status monitoring
-  # - sys_time         # Time synchronization
+  
+  # IMU and attitude data
+  - imu              # IMU plugin for ATTITUDE/ATTITUDE_QUATERNION messages
   
   # Custom sensor plugins
   - tof_ranges       # TOF L7CX range sensor data (ID: 42001)
@@ -20,7 +21,6 @@ plugin_allowlist:
 # load_all_plugins: true
 
 # Additional plugins you might want to enable:
-# - imu              # IMU data
 # - global_position  # GPS position
 # - local_position   # Local position
 # - altitude         # Altitude data

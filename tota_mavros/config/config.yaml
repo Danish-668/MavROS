@@ -9,11 +9,15 @@ mavlink:
   input_port: 14551   # Port to receive MAVLink messages
   output_port: 14555  # Port to forward messages to MAVROS
   host: "127.0.0.1"   # Host IP address
+  gcs_url: ""  # GCS connection URL (optional)
+  target_system_id: 20     # MAVLink target system ID
+  target_component_id: 200  # MAVLink target component ID
+  fcu_protocol: "v2.0"      # MAVLink protocol version
 
 # MAVROS configuration
 mavros:
-  fcu_protocol: "v2.0"  # MAVLink protocol version
   plugin_config: "mavros_plugins.yaml"  # Path to plugin configuration file
+  log_output: "screen"  # Log output destination (screen or log)
   
 # Custom message configuration
 custom_messages:
