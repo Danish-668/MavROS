@@ -1,14 +1,15 @@
-# Minimal MAVROS with Custom MAVLink Messages
+# TOTA MAVROS - Custom Dialect Integration
 
-A streamlined ROS2 MAVROS implementation with built-in custom MAVLink message handling. Supports bidirectional communication with autopilots using custom dialects.
+A specialized ROS2 MAVROS implementation with integrated TOTA dialect support. Features proper typed message handlers and follows MAVROS conventions for custom MAVLink message handling.
 
 ## Features
 
-- ✅ **Minimal MAVROS** - Only essential plugins included
-- ✅ **Custom MAVLink messages** - Direct plugin integration for TOTA dialect
-- ✅ **Configurable namespace** - Set via config.yaml
-- ✅ **Bidirectional communication** - Receive sensor data, send commands
-- ✅ **Built-in router** - No external routing needed
+- ✅ **TOTA Dialect Integration** - Native support for TOTA custom messages
+- ✅ **Typed Message Handlers** - Proper MAVROS plugin architecture with auto-deserialization
+- ✅ **Symlink Build Support** - Fast development with `colcon build --symlink-install`
+- ✅ **Parallel Build Support** - Efficient builds with `--parallel-workers`
+- ✅ **Built-in Custom Plugins** - TOF sensors, wheel encoders, velocity control
+- ✅ **Standard MAVROS Compatibility** - Works with existing MAVROS ecosystem
 
 ## Quick Start
 
@@ -20,7 +21,7 @@ A streamlined ROS2 MAVROS implementation with built-in custom MAVLink message ha
 ```bash
 cd ~/ros2_mav_ws
 rosdep install --from-paths src -y --ignore-src
-colcon build --packages-select mavros
+colcon build --symlink-install --parallel-workers 3
 source install/setup.bash
 ```
 
@@ -37,13 +38,14 @@ mavlink:
 
 ### Running
 
-Simply launch MAVROS:
+Launch MAVROS with TOTA dialect:
 ```bash
 cd ~/ros2_mav_ws
-python3 launch_mavros.py
+source install/setup.bash
+ros2 launch tota_mavros mavros.launch.py namespace:=tota1
 ```
 
-That's it! The built-in MAVROS router handles all communication.
+The system will automatically load TOTA dialect and custom plugins.
 
 ## Network Setup
 
@@ -60,14 +62,13 @@ That's it! The built-in MAVROS router handles all communication.
 ### Receiving Data (from autopilot)
 All topics are prefixed with `/{robot_name}/`
 
-**Custom Messages:**
-- `tof_ranges/raw` - 8x8 TOF distance array (meters)
+**Custom TOTA Messages:**
+- `tof_ranges/raw` - 8x8 TOF distance array (Int32MultiArray, mm)
 - `tof_ranges/cloud` - PointCloud2 visualization
-- `tof_meta/status` - Zone status values
-- `tof_meta/confidence` - Zone confidence values
-- `wheel_encoders/counts` - Encoder tick counts
-- `wheel_encoders/velocities` - Wheel velocities (rad/s)
-- `wheel_encoders/twist` - Robot twist
+- `tof_meta/status` - Zone status values (UInt8MultiArray)
+- `tof_meta/signal` - Signal strength values (UInt16MultiArray)
+- `wheel_encoders/joint_states` - Joint positions and velocities
+- `wheel_encoders/raw_ticks` - Raw encoder tick counts
 
 **Standard Telemetry:**
 - `imu/data` - IMU with orientation
@@ -103,13 +104,25 @@ ros2 topic echo /tota1/mavlink_source
 ros2 topic echo /tota1/mavlink_sink
 ```
 
-## Custom Messages Supported
+## TOTA Dialect Implementation
 
-| Message | ID | Description |
-|---------|-----|-------------|
-| TOF_L7CX_RANGES | 42001 | 8x8 TOF sensor array |
-| TOF_L7CX_META | 42002 | TOF metadata |
-| WHEEL_ENCODERS | 42003 | Differential drive encoders |
+This implementation uses proper TOTA dialect integration with typed message handlers, following MAVROS conventions:
+
+### Custom Messages Supported
+
+| Message | ID | Description | Plugin |
+|---------|-----|-------------|--------|
+| TOF_L7CX_RANGES | 42001 | 8x8 TOF sensor array | tof_ranges |
+| TOF_L7CX_META | 42002 | TOF metadata (status/signal) | tof_meta |
+| WHEEL_ENCODERS | 42003 | Differential drive encoders | wheel_encoders |
+
+### Key Implementation Details
+
+- **Dialect Integration**: TOTA dialect is the primary dialect (includes common messages)
+- **Typed Handlers**: All plugins use `mavlink::tota_dialect::msg::MESSAGE_NAME` objects
+- **Auto-Deserialization**: MAVLink messages automatically parsed to typed objects
+- **Filter Support**: Uses `plugin::filter::SystemAndOk` for message filtering
+- **MAVROS Conventions**: Follows standard MAVROS plugin architecture
 
 ## Development
 

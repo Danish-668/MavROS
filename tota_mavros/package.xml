@@ -2,26 +2,22 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>tota_mavros</name>
-  <version>1.0.0</version>
-  <description>TOTA MAVROS - Custom MAVROS configuration and launch files for TOTA robot</description>
+  <version>2.6.0</version>
+  <description>TOTA MAVROS launch and configuration package</description>
   <maintainer email="danish.tapia@combatrobotics.in">Danish</maintainer>
-  <license>BSD</license>
+  <license>BSD-3-Clause</license>
 
-  <depend>rclpy</depend>
-  <depend>launch</depend>
-  <depend>launch_ros</depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  
   <depend>mavros</depend>
   <depend>mavros_msgs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>sensor_msgs</depend>
-  <depend>std_msgs</depend>
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

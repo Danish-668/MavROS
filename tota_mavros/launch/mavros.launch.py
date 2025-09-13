@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ROS2 Launch file for TOTA MAVROS
-Launches MAVROS with custom configuration for TOTA robot
+Launches MAVROS with TOTA dialect and custom plugins
 """
 
 import os
@@ -18,7 +18,7 @@ def generate_launch_description():
     tota_mavros_pkg = get_package_share_directory('tota_mavros')
     default_mavros_config = os.path.join(tota_mavros_pkg, 'config', 'mavros_config.yaml')
     
-    # Load default namespace from config
+    # Launch arguments
     namespace_arg = DeclareLaunchArgument(
         'namespace',
         default_value='tota1',
@@ -31,6 +31,12 @@ def generate_launch_description():
         description='Log output'
     )
 
+    fcu_url_arg = DeclareLaunchArgument(
+        'fcu_url',
+        default_value='udp://127.0.0.1:14551@:14555',
+        description='FCU connection URL'
+    )
+
     # Create MAVROS node
     mavros_node = Node(
         package='mavros',
@@ -38,7 +44,9 @@ def generate_launch_description():
         namespace=LaunchConfiguration('namespace'),
         output=LaunchConfiguration('log_output'),
         respawn=False,
-        parameters=[default_mavros_config],
+        parameters=[default_mavros_config, {
+            'fcu_url': LaunchConfiguration('fcu_url'),
+        }],
         arguments=['--ros-args', '--log-level', 'info'],
         emulate_tty=True,
         on_exit=Shutdown(),
@@ -47,5 +55,6 @@ def generate_launch_description():
     return LaunchDescription([
         namespace_arg,
         log_output_arg,
+        fcu_url_arg,
         mavros_node
     ])

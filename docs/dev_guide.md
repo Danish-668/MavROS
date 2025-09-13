@@ -1,6 +1,6 @@
-# MAVROS Development Guide
+# TOTA MAVROS Development Guide
 
-Complete guide for adding new functionality to the minimal MAVROS system - receiving data from autopilot and sending commands.
+Complete guide for adding new functionality to the TOTA MAVROS system with proper dialect integration and typed message handlers.
 
 ## Table of Contents
 - [Receiving Data from Autopilot](#receiving-data-from-autopilot)
@@ -12,38 +12,38 @@ Complete guide for adding new functionality to the minimal MAVROS system - recei
 
 ## 📥 Receiving Data from Autopilot
 
-### Step 1: Update MAVLink Dialect (if using custom messages)
+### Step 1: Add Message to TOTA Dialect (if new message needed)
 
-If your message isn't in the common MAVLink dialect:
+The TOTA dialect is already integrated. To add new messages:
 
-1. **Locate dialect directory**:
+1. **Locate TOTA dialect**:
 ```bash
-src/mavros_custom/mavros/libmavconn/cmake/Modules/mavlink/message_definitions/v1.0/
+src/tota_mavros/mavros/dialects/generated/tota_dialect/
 ```
 
-2. **Add message to dialect XML** (e.g., `tota.xml`):
+2. **Add message to TOTA dialect XML** (if not already present):
 ```xml
 <message id="42004" name="MY_SENSOR_DATA">
   <description>Custom sensor data from autopilot</description>
-  <field type="uint32_t" name="timestamp">Timestamp in ms</field>
+  <field type="uint64_t" name="time_usec">Timestamp in microseconds</field>
   <field type="float[16]" name="values">Sensor readings</field>
   <field type="uint8_t" name="status">Status flags</field>
 </message>
 ```
 
-3. **Rebuild MAVLink headers**:
+3. **Regenerate dialect** (if XML was modified):
 ```bash
-colcon build --packages-select mavros
+colcon build --symlink-install --parallel-workers 3
 ```
 
 ### Step 2: Create MAVROS Plugin
 
 1. **Create plugin file**:
 ```bash
-touch src/mavros_custom/mavros/src/plugins/my_sensor.cpp
+touch src/tota_mavros/mavros/src/plugins/my_sensor.cpp
 ```
 
-2. **Plugin template for receiving data**:
+2. **Plugin template with TOTA dialect typed handler**:
 ```cpp
 #include <mavros/mavros_uas.hpp>
 #include <mavros/plugin.hpp>
@@ -59,6 +59,8 @@ public:
   explicit MySensorPlugin(plugin::UASPtr uas_)
   : Plugin(uas_, "my_sensor")  // This becomes the topic prefix
   {
+    enable_node_watch_parameters();
+    
     // Create publishers for your ROS2 topics
     raw_pub = node->create_publisher<std_msgs::msg::Float32MultiArray>(
       "~/raw", 10);
@@ -71,7 +73,7 @@ public:
 
   Subscriptions get_subscriptions() override
   {
-    // Register handler for your MAVLink message ID
+    // Register typed handler - auto-deserialization!
     return {
       make_handler(&MySensorPlugin::handle_my_sensor_data),
     };
@@ -81,23 +83,24 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr raw_pub;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_pub;
   
+  bool first_msg_received = false;
+  
   void handle_my_sensor_data(
     const mavlink::mavlink_message_t * msg [[maybe_unused]],
-    const mavlink::tota::msg::MY_SENSOR_DATA & sensor_data,  // Your dialect namespace
+    mavlink::tota_dialect::msg::MY_SENSOR_DATA & sensor_data,  // TOTA dialect namespace
     plugin::filter::SystemAndOk filter [[maybe_unused]])
   {
     // Log first message received
-    static bool first_msg = true;
-    if (first_msg) {
+    if (!first_msg_received) {
       RCLCPP_INFO(get_logger(), "Received first MY_SENSOR_DATA message!");
-      first_msg = false;
+      first_msg_received = true;
     }
     
-    // Convert to ROS2 Float32MultiArray
+    // Direct access to typed message fields - no manual parsing!
     auto raw_msg = std_msgs::msg::Float32MultiArray();
     raw_msg.data.resize(16);
     for (int i = 0; i < 16; i++) {
-      raw_msg.data[i] = sensor_data.values[i];
+      raw_msg.data[i] = sensor_data.values[i];  // Direct field access
     }
     raw_pub->publish(raw_msg);
     
@@ -107,7 +110,7 @@ private:
     cloud_msg.header.frame_id = "sensor_frame";
     cloud_msg.height = 4;
     cloud_msg.width = 4;
-    // ... populate point cloud fields ...
+    // ... populate point cloud fields using sensor_data.values[] ...
     cloud_pub->publish(cloud_msg);
   }
 };
@@ -143,11 +146,12 @@ Handles MY_SENSOR_DATA custom messages (ID: 42004)</description>
 ### Step 4: Build and Test
 
 ```bash
-# Build
-colcon build --packages-select mavros
+# Build with symlink support for fast development
+colcon build --symlink-install --parallel-workers 3
 
-# Launch
-python3 launch_mavros.py
+# Launch TOTA MAVROS
+source install/setup.bash
+ros2 launch tota_mavros mavros.launch.py namespace:=tota1
 
 # Verify plugin loaded
 # Should see: "My Sensor plugin initialized - waiting for MY_SENSOR_DATA messages"
@@ -160,6 +164,9 @@ ros2 topic list | grep my_sensor
 
 # Monitor data
 ros2 topic echo /tota1/my_sensor/raw
+
+# Check TOTA dialect loaded
+# Should see in logs: "Known MAVLink dialects: tota_dialect"
 ```
 
 ---
@@ -452,22 +459,26 @@ export RCUTILS_LOGGING_USE_STDOUT=1
 ## Quick Reference
 
 ### File Locations
-- **Plugins**: `src/mavros_custom/mavros/src/plugins/`
-- **CMakeLists**: `src/mavros_custom/mavros/CMakeLists.txt`
-- **Plugin Registry**: `src/mavros_custom/mavros/mavros_plugins.xml`
-- **Dialects**: `src/mavros_custom/mavros/libmavconn/cmake/Modules/mavlink/message_definitions/v1.0/`
+- **Plugins**: `src/tota_mavros/mavros/src/plugins/`
+- **CMakeLists**: `src/tota_mavros/mavros/CMakeLists.txt`
+- **Plugin Registry**: `src/tota_mavros/mavros/mavros_plugins.xml`
+- **TOTA Dialect**: `src/tota_mavros/mavros/dialects/generated/tota_dialect/`
+- **Dialect Templates**: `src/tota_mavros/libmavconn/include/mavconn/mavlink_dialect.hpp.em`
 
 ### Build Commands
 ```bash
-# Build only MAVROS
-colcon build --packages-select mavros
+# Build with symlink support (recommended)
+colcon build --symlink-install --parallel-workers 3
+
+# Build specific packages
+colcon build --symlink-install --parallel-workers 3 --packages-select tota_mavros
 
 # Clean build
-rm -rf build/mavros install/mavros
-colcon build --packages-select mavros
+rm -rf build install log
+colcon build --symlink-install --parallel-workers 3
 
 # With verbose output
-colcon build --packages-select mavros --event-handlers console_direct+
+colcon build --symlink-install --parallel-workers 3 --event-handlers console_direct+
 ```
 
 ### Testing Commands

@@ -1,14 +1,19 @@
 /**:
   ros__parameters:
 
+    # Connection configuration
     fcu_url: udp://127.0.0.1:14551@:14555
-    # gcs_url: udp://127.0.0.1:14555@:14551
-
     tgt_system: 20
     tgt_component: 200
     fcu_protocol: v2.0
     
+    # Plugin configuration - TOTA custom plugins + essential standard plugins
     plugin_allowlist:
-      - tof_ranges
-      - tof_meta
-      - wheel_encoders
+      # TOTA Custom Plugins
+      - tof_ranges         # TOF_L7CX_RANGES (42001)
+      - tof_meta          # TOF_L7CX_META (42002) 
+      - wheel_encoders    # WHEEL_ENCODERS (42003)
+      - velocity_control  # Velocity command sender
+      
+      # Essential Standard Plugins  
+      - imu               # IMU data processing
