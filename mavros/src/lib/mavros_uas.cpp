@@ -250,7 +250,7 @@ void UAS::add_plugin(const std::string & pl_name)
   auto lg = get_logger();
 
   if (!is_plugin_allowed(pl_name)) {
-    RCLCPP_INFO_STREAM(lg, "Plugin " << pl_name << " ignored");
+    // RCLCPP_INFO_STREAM(lg, "Plugin " << pl_name << " ignored");
     return;
   }
 

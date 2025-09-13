@@ -632,8 +632,8 @@ public:
       make_handler(&SystemStatusPlugin::handle_sys_status),
       make_handler(&SystemStatusPlugin::handle_statustext),
       make_handler(&SystemStatusPlugin::handle_event),
-      make_handler(&SystemStatusPlugin::handle_meminfo),
-      make_handler(&SystemStatusPlugin::handle_hwstatus),
+      // make_handler(&SystemStatusPlugin::handle_meminfo),  // ArduPilot-specific
+      // make_handler(&SystemStatusPlugin::handle_hwstatus),  // ArduPilot-specific
       make_handler(&SystemStatusPlugin::handle_autopilot_version),
       make_handler(&SystemStatusPlugin::handle_extended_sys_state),
       make_handler(&SystemStatusPlugin::handle_battery_status),
@@ -1057,6 +1057,8 @@ private:
     statusevent_pub->publish(evt_msg);
   }
 
+  // ArduPilot-specific handlers disabled for TOTA dialect
+  /*
   void handle_meminfo(
     const mavlink::mavlink_message_t * msg [[maybe_unused]],
     mavlink::ardupilotmega::msg::MEMINFO & mem,
@@ -1072,6 +1074,7 @@ private:
   {
     hwst_diag.set(hwst.Vcc, hwst.I2Cerr);
   }
+  */
 
   void handle_autopilot_version(
     const mavlink::mavlink_message_t * msg,

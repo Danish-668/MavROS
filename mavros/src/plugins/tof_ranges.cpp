@@ -13,7 +13,6 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <std_msgs/msg/float32_multi_array.hpp>
-#include <mavros_msgs/msg/mavlink.hpp>
 
 namespace mavros {
 namespace extra_plugins {
@@ -40,117 +39,104 @@ public:
 
     Subscriptions get_subscriptions() override
     {
-        // Register raw handler for TOF_L7CX_RANGES message (ID 42001)
         return {
-            make_handler(42001, &TofRangesPlugin::handle_tof_ranges_raw)
+            make_handler(&TofRangesPlugin::handle_tof_ranges)
         };
     }
     
     void connection_cb(bool connected) override
     {
-        if (connected) {
-            RCLCPP_INFO(get_logger(), "TOF plugin connected - ready to receive messages");
+        if (!connected) {
+            return;
         }
+        
+        RCLCPP_INFO(get_logger(), "TOF Ranges: FCU connection established");
     }
 
 private:
     rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr ranges_raw_pub;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr ranges_cloud_pub;
     
-    void handle_tof_ranges_raw(const mavlink::mavlink_message_t *msg, const mavconn::Framing framing)
+    bool first_msg_received = false;
+
+    void handle_tof_ranges(
+        const mavlink::mavlink_message_t * msg [[maybe_unused]],
+        mavlink::tota_dialect::msg::TOF_L7CX_RANGES & tof_msg,
+        plugin::filter::SystemAndOk filter [[maybe_unused]])
     {
-        // Parse the custom message manually
-        // Message structure:
-        // - uint64_t time_us (8 bytes)
-        // - uint16_t range_mm[64] (128 bytes)
+        if (!first_msg_received) {
+            RCLCPP_INFO(get_logger(), "Received first TOF_L7CX_RANGES message!");
+            first_msg_received = true;
+        }
+
+        // Convert to ROS2 Float32MultiArray
+        auto ranges_msg = std_msgs::msg::Float32MultiArray();
+        ranges_msg.layout.dim.resize(2);
+        ranges_msg.layout.dim[0].label = "rows";
+        ranges_msg.layout.dim[0].size = 8;
+        ranges_msg.layout.dim[0].stride = 64;
+        ranges_msg.layout.dim[1].label = "cols";
+        ranges_msg.layout.dim[1].size = 8;
+        ranges_msg.layout.dim[1].stride = 8;
         
-        if (!msg || msg->msgid != 42001) {
-            return;
+        // Convert mm to meters
+        ranges_msg.data.reserve(64);
+        for (int i = 0; i < 64; i++) {
+            ranges_msg.data.push_back(tof_msg.range_mm[i] / 1000.0f);
         }
         
-        RCLCPP_INFO_ONCE(get_logger(), "Received first TOF_L7CX_RANGES message!");
-
-        // Extract timestamp (first 8 bytes of payload)
-        uint64_t time_us;
-        memcpy(&time_us, &msg->payload64[0], sizeof(uint64_t));
-
-        // Extract ranges (next 128 bytes as 64 uint16_t values)
-        std::vector<uint16_t> ranges_mm(64);
-        // payload64[1] onwards contains the range data (payload64 is array of uint64_t)
-        memcpy(ranges_mm.data(), &msg->payload64[1], 64 * sizeof(uint16_t));
-
-        // Publish as raw array
-        auto raw_msg = std_msgs::msg::Float32MultiArray();
-        raw_msg.layout.dim.resize(2);
-        raw_msg.layout.dim[0].label = "rows";
-        raw_msg.layout.dim[0].size = 8;
-        raw_msg.layout.dim[0].stride = 64;
-        raw_msg.layout.dim[1].label = "cols";
-        raw_msg.layout.dim[1].size = 8;
-        raw_msg.layout.dim[1].stride = 8;
+        ranges_raw_pub->publish(ranges_msg);
         
-        raw_msg.data.resize(64);
-        for (size_t i = 0; i < 64; i++) {
-            raw_msg.data[i] = ranges_mm[i] / 1000.0f;  // Convert mm to meters
-        }
-        
-        ranges_raw_pub->publish(raw_msg);
-
         // Also publish as point cloud
-        publish_as_pointcloud(ranges_mm, time_us);
-        
-        // Log periodically
-        static int msg_count = 0;
-        if (++msg_count % 10 == 0) {
-            RCLCPP_DEBUG(get_logger(), 
-                "TOF Ranges: received %d messages, latest timestamp: %lu us", 
-                msg_count, time_us);
-        }
+        publish_point_cloud(tof_msg);
     }
 
-    void publish_as_pointcloud(const std::vector<uint16_t>& ranges_mm, uint64_t time_us)
+    void publish_point_cloud(const mavlink::tota_dialect::msg::TOF_L7CX_RANGES & tof_msg)
     {
         auto cloud_msg = sensor_msgs::msg::PointCloud2();
         
-        // Setup message metadata
+        // Set header
         cloud_msg.header.stamp = uas->now();
-        cloud_msg.header.frame_id = "tof_sensor";
+        cloud_msg.header.frame_id = "tof_sensor_frame";
+        
+        // Define fields
         cloud_msg.height = 8;
         cloud_msg.width = 8;
         cloud_msg.is_dense = true;
         cloud_msg.is_bigendian = false;
+        cloud_msg.point_step = 12; // 3 floats (x, y, z)
+        cloud_msg.row_step = cloud_msg.point_step * cloud_msg.width;
         
-        // Define point cloud fields (x, y, z)
+        // Setup fields
         sensor_msgs::PointCloud2Modifier modifier(cloud_msg);
         modifier.setPointCloud2Fields(3,
             "x", 1, sensor_msgs::msg::PointField::FLOAT32,
             "y", 1, sensor_msgs::msg::PointField::FLOAT32,
             "z", 1, sensor_msgs::msg::PointField::FLOAT32);
-        modifier.resize(64);
         
         // Fill point cloud data
         sensor_msgs::PointCloud2Iterator<float> iter_x(cloud_msg, "x");
         sensor_msgs::PointCloud2Iterator<float> iter_y(cloud_msg, "y");
         sensor_msgs::PointCloud2Iterator<float> iter_z(cloud_msg, "z");
         
-        // TOF sensor field of view (approximate)
-        const float fov_deg = 45.0f;  // 45 degree field of view
-        const float fov_rad = fov_deg * M_PI / 180.0f;
-        const float angle_per_zone = fov_rad / 8.0f;
+        // Assume 45 degree field of view, centered
+        const float fov = 45.0f * M_PI / 180.0f;
+        const float cell_angle = fov / 8.0f;
+        const float start_angle = -fov / 2.0f + cell_angle / 2.0f;
         
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 int idx = row * 8 + col;
-                float range_m = ranges_mm[idx] / 1000.0f;
+                float distance = tof_msg.range_mm[idx] / 1000.0f; // Convert to meters
                 
                 // Calculate angles for this zone
-                float angle_x = (col - 3.5f) * angle_per_zone;
-                float angle_y = (row - 3.5f) * angle_per_zone;
+                float angle_x = start_angle + col * cell_angle;
+                float angle_y = start_angle + row * cell_angle;
                 
                 // Convert to Cartesian coordinates
-                *iter_z = range_m;
-                *iter_x = range_m * tan(angle_x);
-                *iter_y = range_m * tan(angle_y);
+                *iter_x = distance * tan(angle_x);
+                *iter_y = distance * tan(angle_y);
+                *iter_z = distance;
                 
                 ++iter_x;
                 ++iter_y;
@@ -165,5 +151,5 @@ private:
 }  // namespace extra_plugins
 }  // namespace mavros
 
-#include <mavros/mavros_plugin_register_macro.hpp>
+#include <mavros/mavros_plugin_register_macro.hpp>  // NOLINT
 MAVROS_PLUGIN_REGISTER(mavros::extra_plugins::TofRangesPlugin)

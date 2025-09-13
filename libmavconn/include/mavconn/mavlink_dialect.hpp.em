@@ -44,8 +44,8 @@ constexpr auto version = "unknown";
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 
-@[for dialect in MAVLINK_V20_DIALECTS]#include <mavlink/v2.0/@(dialect)/@(dialect).hpp>
-@[end for]
+// Include TOTA dialect (includes common + custom messages)
+#include "../../mavros/dialects/generated/tota_dialect/tota_dialect.hpp"
 
 #pragma GCC diagnostic pop
 

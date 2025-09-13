@@ -41,23 +41,8 @@ constexpr auto version = "unknown";
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 
-#include <mavlink/v2.0/common/common.hpp>
-#include <mavlink/v2.0/ardupilotmega/ardupilotmega.hpp>
-#include <mavlink/v2.0/ASLUAV/ASLUAV.hpp>
-#include <mavlink/v2.0/AVSSUAS/AVSSUAS.hpp>
-#include <mavlink/v2.0/all/all.hpp>
-#include <mavlink/v2.0/csAirLink/csAirLink.hpp>
-#include <mavlink/v2.0/cubepilot/cubepilot.hpp>
-#include <mavlink/v2.0/development/development.hpp>
-#include <mavlink/v2.0/icarous/icarous.hpp>
-#include <mavlink/v2.0/loweheiser/loweheiser.hpp>
-#include <mavlink/v2.0/matrixpilot/matrixpilot.hpp>
-#include <mavlink/v2.0/paparazzi/paparazzi.hpp>
-#include <mavlink/v2.0/standard/standard.hpp>
-#include <mavlink/v2.0/storm32/storm32.hpp>
-#include <mavlink/v2.0/uAvionix/uAvionix.hpp>
-#include <mavlink/v2.0/ualberta/ualberta.hpp>
-
+// Include TOTA dialect (includes common + custom messages)
+#include "../../mavros/dialects/generated/tota_dialect/tota_dialect.hpp"
 
 #pragma GCC diagnostic pop
 

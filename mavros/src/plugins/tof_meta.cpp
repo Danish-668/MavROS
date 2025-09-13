@@ -11,7 +11,7 @@
 #include <mavros/plugin_filter.hpp>
 
 #include <std_msgs/msg/u_int8_multi_array.hpp>
-#include <mavros_msgs/msg/mavlink.hpp>
+#include <std_msgs/msg/u_int16_multi_array.hpp>
 
 namespace mavros {
 namespace extra_plugins {
@@ -19,8 +19,8 @@ namespace extra_plugins {
 /**
  * @brief TOF L7CX Meta plugin
  * 
- * Handles TOF_L7CX_META messages (ID: 42002) containing 8x8 zone metadata
- * (status and confidence) from VL53L7CX sensor.
+ * Handles TOF_L7CX_META messages (ID: 42002) containing status and signal
+ * strength for each VL53L7CX zone.
  */
 class TofMetaPlugin : public plugin::Plugin {
 public:
@@ -29,52 +29,37 @@ public:
     {
         enable_node_watch_parameters();
 
-        // Publishers for status and confidence
+        // Publishers for metadata
         status_pub = node->create_publisher<std_msgs::msg::UInt8MultiArray>("~/status", 10);
-        confidence_pub = node->create_publisher<std_msgs::msg::UInt8MultiArray>("~/confidence", 10);
+        signal_pub = node->create_publisher<std_msgs::msg::UInt16MultiArray>("~/signal", 10);
         
-        RCLCPP_INFO(get_logger(), "TOF Meta plugin initialized - waiting for TOF_META messages (ID 42002)");
+        RCLCPP_INFO(get_logger(), "TOF Meta plugin initialized - waiting for TOF_L7CX_META messages (ID 42002)");
     }
 
     Subscriptions get_subscriptions() override
     {
-        // Register raw handler for TOF_L7CX_META message (ID 42002)
         return {
-            make_handler(42002, &TofMetaPlugin::handle_tof_meta_raw)
+            make_handler(&TofMetaPlugin::handle_tof_meta)
         };
     }
 
 private:
     rclcpp::Publisher<std_msgs::msg::UInt8MultiArray>::SharedPtr status_pub;
-    rclcpp::Publisher<std_msgs::msg::UInt8MultiArray>::SharedPtr confidence_pub;
+    rclcpp::Publisher<std_msgs::msg::UInt16MultiArray>::SharedPtr signal_pub;
     
-    void handle_tof_meta_raw(const mavlink::mavlink_message_t *msg, const mavconn::Framing framing)
+    bool first_msg_received = false;
+
+    void handle_tof_meta(
+        const mavlink::mavlink_message_t * msg [[maybe_unused]],
+        mavlink::tota_dialect::msg::TOF_L7CX_META & meta_msg,
+        plugin::filter::SystemAndOk filter [[maybe_unused]])
     {
-        // Parse the custom message manually
-        // Message structure:
-        // - uint64_t time_us (8 bytes)
-        // - uint8_t status[64] (64 bytes)
-        // - uint8_t confidence[64] (64 bytes)
-        
-        if (!msg || msg->msgid != 42002) {
-            return;
+        if (!first_msg_received) {
+            RCLCPP_INFO(get_logger(), "Received first TOF_L7CX_META message!");
+            first_msg_received = true;
         }
-        
-        RCLCPP_INFO_ONCE(get_logger(), "Received first TOF_L7CX_META message!");
 
-        // Extract timestamp (first 8 bytes of payload)
-        uint64_t time_us;
-        memcpy(&time_us, &msg->payload64[0], sizeof(uint64_t));
-
-        // Extract status array (next 64 bytes)
-        std::vector<uint8_t> status(64);
-        memcpy(status.data(), reinterpret_cast<const uint8_t*>(&msg->payload64[1]), 64);
-
-        // Extract confidence array (next 64 bytes after status)
-        std::vector<uint8_t> confidence(64);
-        memcpy(confidence.data(), reinterpret_cast<const uint8_t*>(&msg->payload64[1]) + 64, 64);
-
-        // Publish status array
+        // Publish status array (0 = valid)
         auto status_msg = std_msgs::msg::UInt8MultiArray();
         status_msg.layout.dim.resize(2);
         status_msg.layout.dim[0].label = "rows";
@@ -83,29 +68,33 @@ private:
         status_msg.layout.dim[1].label = "cols";
         status_msg.layout.dim[1].size = 8;
         status_msg.layout.dim[1].stride = 8;
-        status_msg.data = status;
         
-        status_pub->publish(status_msg);
-
-        // Publish confidence array
-        auto conf_msg = std_msgs::msg::UInt8MultiArray();
-        conf_msg.layout = status_msg.layout;  // Same structure
-        conf_msg.data = confidence;
-        
-        confidence_pub->publish(conf_msg);
-        
-        // Log periodically
-        static int msg_count = 0;
-        if (++msg_count % 10 == 0) {
-            RCLCPP_DEBUG(get_logger(), 
-                "TOF Meta: received %d messages, latest timestamp: %lu us", 
-                msg_count, time_us);
+        status_msg.data.reserve(64);
+        for (int i = 0; i < 64; i++) {
+            status_msg.data.push_back(meta_msg.status[i]);
         }
+        status_pub->publish(status_msg);
+        
+        // Publish signal strength array (in kcps)
+        auto signal_msg = std_msgs::msg::UInt16MultiArray();
+        signal_msg.layout.dim.resize(2);
+        signal_msg.layout.dim[0].label = "rows";
+        signal_msg.layout.dim[0].size = 8;
+        signal_msg.layout.dim[0].stride = 64;
+        signal_msg.layout.dim[1].label = "cols";
+        signal_msg.layout.dim[1].size = 8;
+        signal_msg.layout.dim[1].stride = 8;
+        
+        signal_msg.data.reserve(64);
+        for (int i = 0; i < 64; i++) {
+            signal_msg.data.push_back(meta_msg.signal[i]);
+        }
+        signal_pub->publish(signal_msg);
     }
 };
 
 }  // namespace extra_plugins
 }  // namespace mavros
 
-#include <mavros/mavros_plugin_register_macro.hpp>
+#include <mavros/mavros_plugin_register_macro.hpp>  // NOLINT
 MAVROS_PLUGIN_REGISTER(mavros::extra_plugins::TofMetaPlugin)

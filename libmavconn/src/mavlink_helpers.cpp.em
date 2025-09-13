@@ -52,16 +52,15 @@ void MAVConnInterface::init_msg_entry()
     }
   };
 
-  @[for dialect in MAVLINK_V20_DIALECTS]for (auto &e : mavlink::@dialect::MESSAGE_ENTRIES) @(' ' * (20 - len(dialect))) load("@dialect", e);
-  @[end for]
+  // Load TOTA dialect (includes common + custom messages)
+  for (auto &e : mavlink::tota_dialect::MESSAGE_ENTRIES)          load("tota_dialect", e);
 }
 
 std::vector<std::string> MAVConnInterface::get_known_dialects()
 {
   return
   {
-    @[for dialect in MAVLINK_V20_DIALECTS]"@dialect",
-    @[end for]
+    "tota_dialect",
   };
 }
 
